@@ -45,21 +45,72 @@ DATA STRUCTURES
 
 ALGORITHM
     - Given a plaintext and a keyword
-    - Split plaintext into individual characters
     - Create an index tracker for keyword
+    - Create a new empty string
     - Iterate through every character, and for every character
-        - Go to the next character if not alphabetical
+        - if not alphabetical
+          - append to new string
         - If alphabetical:
-            - Transform every character based on the current letter of the
-                keyword (Using caesar cipher)
+            - Transform every character using the ceasar cipher, and append to new
+              string
             - Increase the keyword index value by 1
             - If we ever reach the end of the keyword, we reset the index
                 that we are using to 0
-    - Join 
+    - Return new string 
 */
 
-function vigenereCipher(plaintext, keyword) {
+const alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h',
+                  'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 
+                  'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' ];
 
+function encryptLetter(string, shiftValue) {
+  let counter = 0;
+  let startingIndex = alphabet.indexOf(string.toLowerCase());
+  let newLetter;
+
+  for(let index = startingIndex; counter <= shiftValue; counter += 1, index += 1) {
+    if (index > 25) index = 0;
+    newLetter = alphabet[index];
+  }
+
+  return string === alphabet[startingIndex] ? newLetter : newLetter.toUpperCase();
+}
+
+function caesarEncrypt(string, shiftValue) {
+  let stringChars = string.split('');
+  
+  let transformedArray = stringChars.map(char => {
+    if (/[a-zA-Z]/.test(char)) {
+      return encryptLetter(char, shiftValue);
+    } else {
+      return char;
+    }
+  })
+
+  return transformedArray.join('');
+}
+
+function vigenereCipher(plaintext, keyword) {
+  let keywordIndex = 0;
+  let transformedString = '';
+
+  for(let index = 0; index < plaintext.length; index += 1) {
+    let currentPlaintextChar = plaintext[index];
+    let currentKeywordChar = keyword[keywordIndex].toLowerCase();
+
+    if (/[a-zA-Z]/.test(currentPlaintextChar)) {
+      transformedString += caesarEncrypt(currentPlaintextChar, alphabet.indexOf(currentKeywordChar));
+      keywordIndex += 1;
+    } else {
+      transformedString += currentPlaintextChar;
+    }
+
+    if (keywordIndex >= keyword.length) {
+      keywordIndex = 0;
+    }
+  }
+
+  return transformedString;
 }
 
 console.log(vigenereCipher("Pineapples don't go on pizzas!", 'meat')); 
@@ -68,6 +119,8 @@ console.log(vigenereCipher("Pineapples don't go on pizzas!", 'MEAT'));
 console.log(vigenereCipher("Pineapples don't go on pizzas!", 'mEAt')); 
 console.log(vigenereCipher("Pineapples don't go on pizzas!", 'mEAt')); 
 
-console.log(vigenereCipher("Pinea'ppl/es don't go on p!@izz$as!", 'mEAt')); 
+console.log(vigenereCipher("Pin  ea'ppl/es d  on't go on p!@i zz  $as!", 'mEAt')); 
 console.log(vigenereCipher("Pineapples don't go on pizz!", 'mEAt')); 
 console.log(vigenereCipher("Pin", 'meat')); 
+console.log(vigenereCipher("Dog", 'Rabbit')); 
+console.log(vigenereCipher("Pineapples don't go on pizzas!", 'cab')); 
